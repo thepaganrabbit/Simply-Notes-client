@@ -6,7 +6,7 @@ export interface User {
 }
 
 export interface OutUser {
-    name: string;
+    name?: string;
     username: string;
     password: string;
 }
