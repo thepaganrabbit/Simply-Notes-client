@@ -3,9 +3,11 @@ import { loginUserOut } from "../../store/User";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
-interface NavBarProps {}
+interface NavBarProps {
+  name?: string;
+}
 
-const NavBar: React.FC<NavBarProps> = () => {
+const NavBar: React.FC<NavBarProps> = ({name}) => {
   const navigate = useNavigate();
 
   const handleLogOut = () => {
@@ -22,7 +24,7 @@ const NavBar: React.FC<NavBarProps> = () => {
     <nav className="navbar" role="navigation" aria-label="main navigation">
       <div className="navbar-brand">
         <a className="navbar-item" href="/">
-          Tasks
+         {name} Tasks
         </a>
 
         <a

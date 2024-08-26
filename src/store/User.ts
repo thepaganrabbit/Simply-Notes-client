@@ -23,7 +23,7 @@ export const signUp = async (user: OutUser): Promise<boolean> => {
         (error as any).response?.data.code
       }`
     );
-    return false;
+    return true;
   }
 };
 
@@ -64,30 +64,35 @@ export const verifyToken = async (token: string) => {
 
 export const loginUser = async (user: OutUser): Promise<boolean> => {
   try {
-    const { data } = await axios.post(SERVER_URL + "/auth/login", user);
+    const response = await axios.post(SERVER_URL + "/auth/login", user);
+    const { data } = response;
+    console.log(response);
     if (!data.success) {
       throw new Error(data.message);
     }
     window.sessionStorage.setItem("notes_sesion", JSON.stringify(data.payload));
-    UserObs.next(data.payload); 
+    UserObs.next(data.payload);
     return true;
   } catch (error) {
+    console.log(error);
     toast.error(
       `${(error as AxiosError).request.statusText}: ${
         (error as any).response?.data.code
       }`
     );
     return false;
-  } 
+  }
 };
 
 export const loginUserOut = (): boolean => {
-    const token = checkToken();
-    if(!token) {
-      toast.error('no such session found.')
-      return false;
-    }
-    window.sessionStorage.removeItem('notes_sesion');
-    return true;
+  UserObs.next(null);
+  const token = checkToken();
+  if (!token) {
+    toast.error("no such session found.");
+    return false;
+  }
+  window.sessionStorage.removeItem("notes_sesion");
+  return true;
 };
+
 export default UserObs;
