@@ -20,9 +20,13 @@ export interface OutUser {
 }
 
 export interface Task {
-    _id?: string;
-    title: string;
-    description: string;
-    isDone: boolean;
+    _id: string;
+    text: string;
+    completed: boolean;
+    userId: string;
 }
-
+ 
+export interface OutTask {
+    text: string;
+    userId: string;
+}

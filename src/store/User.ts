@@ -13,7 +13,7 @@ export const signUp = async (user: OutUser): Promise<boolean> => {
     if (!data.success) {
       throw new Error(data.message);
     }
-    window.sessionStorage.setItem("notes_sesion", JSON.stringify(data.payload));
+    window.sessionStorage.setItem("notes_session", JSON.stringify(data.payload));
     UserObs.next(data.payload);
     toast.success("Successful sign in");
     return true;
@@ -36,7 +36,7 @@ export const checkToken = () => {
     token = null;
   });
 
-  token = window!.sessionStorage.getItem("notes_sesion");
+  token = window!.sessionStorage.getItem("notes_session");
   if (!token) {
     return false;
   }
@@ -70,7 +70,7 @@ export const loginUser = async (user: OutUser): Promise<boolean> => {
     if (!data.success) {
       throw new Error(data.message);
     }
-    window.sessionStorage.setItem("notes_sesion", JSON.stringify(data.payload));
+    window.sessionStorage.setItem("notes_session", JSON.stringify(data.payload));
     UserObs.next(data.payload);
     return true;
   } catch (error) {
@@ -91,7 +91,7 @@ export const loginUserOut = (): boolean => {
     toast.error("no such session found.");
     return false;
   }
-  window.sessionStorage.removeItem("notes_sesion");
+  window.sessionStorage.removeItem("notes_session");
   return true;
 };
 
