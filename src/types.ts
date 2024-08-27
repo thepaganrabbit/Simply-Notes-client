@@ -25,6 +25,11 @@ export interface Task {
     completed: boolean;
     userId: string;
 }
+export interface DictionaryItem {
+    _id: string;
+    commonality: number;
+    text: string;
+}
  
 export interface OutTask {
     text: string;

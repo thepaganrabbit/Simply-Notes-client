@@ -66,7 +66,6 @@ export const loginUser = async (user: OutUser): Promise<boolean> => {
   try {
     const response = await axios.post(SERVER_URL + "/auth/login", user);
     const { data } = response;
-    console.log(response);
     if (!data.success) {
       throw new Error(data.message);
     }
@@ -74,7 +73,6 @@ export const loginUser = async (user: OutUser): Promise<boolean> => {
     UserObs.next(data.payload);
     return true;
   } catch (error) {
-    console.log(error);
     toast.error(
       `${(error as AxiosError).request.statusText}: ${
         (error as any).response?.data.code
