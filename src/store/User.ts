@@ -59,6 +59,7 @@ export const verifyToken = async (token: string) => {
         (error as any).response?.data.code
       }`
     );
+    return false;
   }
 };
 

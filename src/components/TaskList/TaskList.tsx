@@ -8,11 +8,19 @@ import {
 } from "../../store/Content";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan } from "@fortawesome/free-regular-svg-icons";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const TaskList = (): React.ReactElement => {
   const [tasks, setTasks] = React.useState<Task[] | null>(null);
+  const nav = useNavigate();
   const fetchTasks = async () => {
-    await getTasks();
+    const success = await getTasks();
+    console.log(success);
+    if(success === 403) {
+      toast.error('You have been logged out');
+      nav('/entrance/login');
+    }
   };
   const handleCompleteTask = async (id: string) => {
     await completeTask(id);

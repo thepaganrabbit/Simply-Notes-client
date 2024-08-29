@@ -26,7 +26,7 @@ export const getDict = async (): Promise<number> => {
     return 200;
   } catch (error) {
     toast.error((error as AxiosError).message);
-    return (error as AxiosError).status || 500;
+    return (error as AxiosError).response!.status || 500;
   }
 };
 
@@ -49,6 +49,7 @@ export const getTasks = async (): Promise<number> => {
     return 200;
   } catch (error) {
     toast.error((error as AxiosError).message);
+    console.log('this is the status tasks ', (error as AxiosError));
     return (error as AxiosError).status || 500;
   }
 };
@@ -77,7 +78,7 @@ export const addTask = async (text: string): Promise<number> => {
     return 200;
   } catch (error) {
     toast.error((error as AxiosError).message);
-    return (error as AxiosError).status || 500;
+    return (error as AxiosError).response!.status || 500;
   }
 };
 export const completeTask = async (id: string): Promise<number> => {
@@ -98,7 +99,7 @@ export const completeTask = async (id: string): Promise<number> => {
     return 200;
   } catch (error) {
     toast.error((error as AxiosError).message);
-    return (error as AxiosError).status || 500;
+    return (error as AxiosError).response!.status || 500;
   }
 };
 
@@ -120,6 +121,6 @@ export const deleteTask = async (id: string): Promise<number> => {
     return 200;
   } catch (error) {
     toast.error((error as AxiosError).message);
-    return (error as AxiosError).status || 500;
+    return (error as AxiosError).response!.status || 500;
   }
 };

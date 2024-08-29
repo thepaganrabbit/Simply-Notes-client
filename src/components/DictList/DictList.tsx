@@ -1,6 +1,8 @@
 import React from "react";
 import { getDict, WordDictObs } from "../../store/Content";
 import { DictionaryItem } from "../../types";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export interface DictListProps {
   selection: (e: string) => void;
@@ -8,8 +10,13 @@ export interface DictListProps {
 
 const DictList = ({selection}: DictListProps): React.ReactElement => {
   const [words, getWords] = React.useState<DictionaryItem[] | null>(null);
+  const nav = useNavigate();
   const getDictWords = async () => {
-    await getDict();
+    const isSuccessful = await getDict();
+    if(isSuccessful === 403) {
+      toast.error('You have been logged out.')
+      nav('/entrance/login');
+    }
   };
 
   React.useEffect(() => {

@@ -10,7 +10,11 @@ const withAuth = (WrappedComponent: any) => (props: any) => {
     if (!tokenExists) navigate("/entrance/login");
     else {
       const checkValidityOfToken = async () => {
-       setIsAllowedIn(await verifyToken(tokenExists as string)); 
+        const is_expired = await verifyToken(tokenExists as string) 
+        if(!is_expired) {
+          navigate('/entrance/login')
+        }
+       setIsAllowedIn(is_expired); 
       };
       checkValidityOfToken();
 
