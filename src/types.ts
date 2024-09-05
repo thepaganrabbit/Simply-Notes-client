@@ -19,6 +19,14 @@ export interface OutUser {
   password: string;
 }
 
+
+export interface InUser {
+  name: string;
+  username: string;
+  userId: string;
+  isAdmin: boolean;
+}
+
 export interface Task {
   _id: string;
   text: string;
@@ -39,4 +47,9 @@ export interface OutTask {
 export enum FormType {
   LOGIN = "login",
   SIGNUP = "signup",
+}
+
+export enum AccountType {
+  ADMIN = "Admin",
+  USER = "User",
 }

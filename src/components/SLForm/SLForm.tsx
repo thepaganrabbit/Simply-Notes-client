@@ -113,9 +113,11 @@ const SLForm = ({
             onKeyUp={async (e: React.KeyboardEvent<HTMLInputElement>) => {
               if (
                 e.nativeEvent.key === "Backspace" ||
-                (e.nativeEvent.key === "Delete" && passCount > 0)
+                (e.nativeEvent.key === "Delete")
               ) {
-                setPassCount(passCount - 1);
+                if(passCount !== 0){
+                  setPassCount(passCount - 1);
+                }
               } else if (e.nativeEvent.key === "Enter") {
                 if (VALIDATON()) {
                   await handleSubmit();

@@ -1,30 +1,38 @@
 import React from "react";
-import { loginUserOut } from "../../store/User";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+
+import "./Navbar.scss";
+import { loginUserOut } from "../../store/User";
 
 interface NavBarProps {
   name?: string;
 }
 
-const NavBar: React.FC<NavBarProps> = ({name}) => {
+const NavBar: React.FC<NavBarProps> = ({ name }) => {
   const navigate = useNavigate();
-
+  const location = useLocation();
+  
   const handleLogOut = () => {
     const hasLoggedOff = loginUserOut();
     if (hasLoggedOff) {
-        toast.success('Thank you for visiting us...bye.');
-        navigate("/entrance/login");
+      toast.success("Thank you for visiting us...bye.");
+      navigate("/entrance/login");
     } else {
-        toast.error('Something went wrong');
-        navigate('/entrance/login');
+      toast.error("Something went wrong");
+      navigate("/entrance/login");
     }
   };
   return (
-    <nav className="navbar" role="navigation" aria-label="main navigation">
+    <nav
+      className="navbar"
+      role="navigation"
+      aria-label="main navigation"
+      style={{ marginBottom: 54 }}
+    >
       <div className="navbar-brand">
-        <a className="navbar-item" href="/">
-         {name} Tasks
+        <a className="navbar-item cus-title" href="/">
+          {name} Tasks
         </a>
 
         <a
@@ -48,9 +56,19 @@ const NavBar: React.FC<NavBarProps> = ({name}) => {
               {/* <a className="button is-primary">
                 <strong>Sign up</strong>
               </a> */}
-              <a className="button is-danger" onClick={handleLogOut}>
+              <a className="button is-danger adj-left" onClick={handleLogOut}>
                 Log out
               </a>
+              {!location.pathname.match(/(admin)/gm) ? (
+                <a
+                  className="button is-success adj-left"
+                  onClick={() => {
+                    navigate("/administration");
+                  }}
+                >
+                  Administration
+                </a>
+              ) : null}
             </div>
           </div>
         </div>

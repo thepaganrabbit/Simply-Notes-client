@@ -12,11 +12,17 @@ import Signup from './pages/entrance/Signup/Signup.tsx';
 import Entrance from './pages/entrance/index.tsx';
 import Login from './pages/entrance/Login/Login.tsx';
 import { Toaster } from 'react-hot-toast';
+import AdminArea from './pages/AdminArea/AdminArea.tsx';
+
 
 const router = createBrowserRouter([
   {
     path: "",
     element: <App />,
+  },
+  {
+    path: 'administration',
+    element: <AdminArea />
   },
   {
     path: '/entrance',
