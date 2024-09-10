@@ -173,3 +173,32 @@ export const deleteTask = async (id: string): Promise<number> => {
     return (error as AxiosError).response!.status || 500;
   }
 };
+
+
+export const deleteCategory = async (id: string): Promise<number> => {
+  try {
+    const user = window.sessionStorage.getItem("notes_session");
+    if (!user) {
+      return 404;
+    }
+    const userObj = JSON.parse(user) as User;
+    const {token } = userObj;
+    const { data } = await axios.delete<CustomResponse<number>>(
+      SERVER_URL + "/content/category?id=" + id,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    if(data.payload !== 204) {{
+      throw new AxiosError('Failed to remove the selected category...', '500');
+    }}
+    const get_catagories = await getCategories();
+    if(get_catagories > 240) {
+      throw new AxiosError('Failed to get all catagories whilst removing a category...', '500');
+    }
+    return 200;
+  } catch (error) {
+    toast.error((error as AxiosError).message);
+    return (error as AxiosError).response!.status || 500;
+  }
+};

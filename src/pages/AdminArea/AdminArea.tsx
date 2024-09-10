@@ -9,7 +9,10 @@ import UserObs, {
 import { useNavigate } from "react-router-dom";
 import { Category, DictionaryItem, InUser, User } from "../../types";
 import NavBar from "../../components/Navbar/Navbar";
-import { CategoriesObs, getCategories, getDict, WordDictObs } from "../../store/Content";
+import { CategoriesObs, deleteCategory, getCategories, getDict, WordDictObs } from "../../store/Content";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
+import toast from "react-hot-toast";
 
 const AdminArea = (): React.ReactElement => {
   const [user, setUser] = React.useState<User | null>(null);
@@ -165,7 +168,14 @@ const AdminArea = (): React.ReactElement => {
                       <td>{category.text}</td>
                       <td>{users?.find((user) => user.userId === category.createdBy)?.name}</td>
                       <td>{category.added && moment(category.added).format('YYYY-MM-DD HH:mm:ss')}</td>
-                      <td>Action</td>
+                      <td>
+                        <button className="button is-ghost" onClick={async () => {
+                            const removeCategory = await deleteCategory(category._id);
+                            if(removeCategory > 240) toast.error('Failed to delete category.');
+                        }}>
+                          <FontAwesomeIcon icon={faTrashAlt} size="1x" color="red" />
+                        </button>
+                      </td>
                     </tr>
                   );
                 })
