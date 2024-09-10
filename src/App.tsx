@@ -1,9 +1,15 @@
 import React, { useEffect } from "react";
 import "./App.scss";
 import UserObs from "./store/User";
-import { User } from "./types";
+import { Category, User } from "./types";
 import withAuth from "./HOC/withAuth";
-import { addTask, getDict, WordDictObs } from "./store/Content";
+import {
+  addTask,
+  CategoriesObs,
+  getCategories,
+  getDict,
+  WordDictObs,
+} from "./store/Content";
 import NavBar from "./components/Navbar/Navbar";
 import toast from "react-hot-toast";
 import { faSquarePlus } from "@fortawesome/free-regular-svg-icons";
@@ -11,13 +17,18 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
 import TaskList from "./components/TaskList/TaskList";
 import DictList from "./components/DictList/DictList";
+import CategorySelection from "./components/CategorySelection/CategorySelection";
+import CategorySelect from "./components/CategorySelect/CategorySelect";
+import { faClose } from "@fortawesome/free-solid-svg-icons";
 
 const App = () => {
   const [user, setUser] = React.useState<User | null>(null);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [showWords, setShowWords] = React.useState<boolean>(false);
   const [taskValue, setTaskValue] = React.useState<string>("");
+  const [category, setCategory] = React.useState<string>("Default");
   const [retrieved, setRetrieved] = React.useState<boolean>(false);
+
 
   const navigate = useNavigate();
 
@@ -28,7 +39,7 @@ const App = () => {
     }
     setIsLoading(true);
     if (user?.token) {
-      const isDone = await addTask(taskValue);
+      const isDone = await addTask({ text: taskValue, category });
       if (isDone !== 200) {
         setIsLoading(true);
         toast.custom("Something wet wrong. Code: " + isDone, {
@@ -51,6 +62,7 @@ const App = () => {
     const sub = UserObs.asObservable().subscribe((user) => {
       setUser(user);
     });
+   
     return () => {
       sub.unsubscribe();
     };
@@ -58,12 +70,14 @@ const App = () => {
   return (
     <>
       <NavBar name={user?.name} />
+      
       <div className="container">
         <div className="field">
           <div
             className={`control is-large ${isLoading ? "is-loading" : ""} `}
             style={{ display: "flex" }}
           >
+            <CategorySelect state={category} action={setCategory} />
             <input
               onFocus={async () => {
                 setIsLoading(true);
@@ -80,15 +94,16 @@ const App = () => {
                       navigate("/entrance/login");
                     }
                   }
-                  setIsLoading(true);
+                  setIsLoading(false);
                 }
+                setIsLoading(false);
               }}
               onKeyDown={async (e: React.KeyboardEvent<HTMLInputElement>) => {
                 if (e.nativeEvent.key === "Enter") {
-                    const successful = await handleAddTask();
-                    if (successful === 200) {
-                      setTaskValue("");
-                    }
+                  const successful = await handleAddTask();
+                  if (successful === 200) {
+                    setTaskValue("");
+                  }
                 }
               }}
               className="input is-large mr-2"
@@ -108,14 +123,26 @@ const App = () => {
             >
               <FontAwesomeIcon icon={faSquarePlus} size={"2x"} />
             </button>
+            {showWords ? (
+              <button
+              className="button is-danger ml-3"
+              onClick={() => {
+               setShowWords(false);
+              }}
+            >
+              <FontAwesomeIcon icon={faClose} size={"2x"} />
+            </button>
+            ) : null}
           </div>
           {showWords && (
+            <>
             <DictList
               selection={(e) => {
                 setTaskValue(e);
                 setShowWords(false);
               }}
             />
+            </>
           )}
         </div>
         <TaskList />

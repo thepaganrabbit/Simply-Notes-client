@@ -1,5 +1,5 @@
 import React from "react";
-import { Task } from "../../types";
+import { InTask, Task } from "../../types";
 import {
   completeTask,
   deleteTask,
@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 const TaskList = (): React.ReactElement => {
-  const [tasks, setTasks] = React.useState<Task[] | null>(null);
+  const [tasks, setTasks] = React.useState<InTask[] | null>(null);
   const nav = useNavigate();
   const fetchTasks = async () => {
     const success = await getTasks();
@@ -51,12 +51,20 @@ const TaskList = (): React.ReactElement => {
                 >
                   {task.text}
                 </div>
+                <div
+                  className="column"
+                  style={{
+                    textDecoration: task.completed ? "Line-through" : "",
+                  }}
+                >
+                  {task.category}
+                </div>
                 <div className="column">
                   <input
                     type="checkbox"
                     checked={task.completed}
                     onChange={(e) => {
-                      handleCompleteTask(task._id);
+                       handleCompleteTask(task._id);
                     }}
                     style={{ marginRight: 9 }}
                   />

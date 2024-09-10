@@ -1,13 +1,14 @@
 import { BehaviorSubject } from "rxjs";
 import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";                    
-import { CustomResponse, DictionaryItem, Task, User } from "../types";
+import { Category, CustomResponse, DictionaryItem, InTask, Task, User } from "../types";
 
 const SERVER_URL = "http://www.local-server.com:3000";
 
 export const WordDictObs = new BehaviorSubject<DictionaryItem[] | null>(null);
+export const CategoriesObs = new BehaviorSubject<Category[] | null>(null);
 
-export const TasksObs = new BehaviorSubject<Task[] | null>(null);
+export const TasksObs = new BehaviorSubject<InTask[] | null>(null);
 
 export const getDict = async (): Promise<number> => {
   const user = window.sessionStorage.getItem("notes_session");
@@ -30,7 +31,53 @@ export const getDict = async (): Promise<number> => {
   }
 };
 
+export const addCategory = async (category: string): Promise<number> => {
+  try {
+    const user = window.sessionStorage.getItem("notes_session");
+    if (!user) {
+      return 404;
+    }
+    const userObj = JSON.parse(user) as User;
+    const {token} = userObj;
+    
+    const { data } = await axios.post<CustomResponse<Category[]>>(
+      SERVER_URL + "/content/add-category?text=" + category,
+      {},
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    await getCategories();
+    CategoriesObs.next(data.payload);
+    return 200;
+  } catch (error) {
+    toast.error((error as AxiosError).message);
+    return (error as AxiosError).response!.status || 500;
+  }
+};
 
+export const getCategories = async (): Promise<number> => {
+  try {
+    const user = window.sessionStorage.getItem("notes_session");
+    if (!user) {
+      return 404;
+    }
+    const userObj = JSON.parse(user) as User;
+    const {token} = userObj;
+    
+    const { data } = await axios.get<CustomResponse<Category[]>>(
+      SERVER_URL + "/content/categories",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    CategoriesObs.next(data.payload);
+    return 200;
+  } catch (error) {
+    toast.error((error as AxiosError).message);
+    return (error as AxiosError).response!.status || 500;
+  }
+};
 
 export const getTasks = async (): Promise<number> => {
   try {
@@ -39,7 +86,7 @@ export const getTasks = async (): Promise<number> => {
       return 404;
     }
     const token = JSON.parse(user).token;
-    const { data } = await axios.get<CustomResponse<Task[]>>(
+    const { data } = await axios.get<CustomResponse<InTask[]>>(
       SERVER_URL + "/content/tasks",
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -54,7 +101,7 @@ export const getTasks = async (): Promise<number> => {
   }
 };
 
-export const addTask = async (text: string): Promise<number> => {
+export const addTask = async (incommingTask: Task): Promise<number> => {
   try {
     const user = window.sessionStorage.getItem("notes_session");
     if (!user) {
@@ -63,10 +110,12 @@ export const addTask = async (text: string): Promise<number> => {
     const userObj = JSON.parse(user) as User;
     const {token, userId} = userObj;
     const task = {
-      text,
+      text: incommingTask.text,
+      category: incommingTask.category ? incommingTask.category : 'Default',
       userId
     }
-    const { data } = await axios.post<CustomResponse<Task[]>>(
+    
+    const { data } = await axios.post<CustomResponse<InTask[]>>(
       SERVER_URL + "/content/add-task",
       task,
       {
@@ -89,7 +138,7 @@ export const completeTask = async (id: string): Promise<number> => {
     }
     const userObj = JSON.parse(user) as User;
     const {token } = userObj;
-    const { data } = await axios.patch<CustomResponse<Task[]>>(
+    const { data } = await axios.patch<CustomResponse<InTask[]>>(
       SERVER_URL + "/content/taskStatus?id=" + id,{},
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -111,10 +160,10 @@ export const deleteTask = async (id: string): Promise<number> => {
     }
     const userObj = JSON.parse(user) as User;
     const {token } = userObj;
-    const { data } = await axios.delete<CustomResponse<Task[]>>(
+    const { data } = await axios.delete<CustomResponse<InTask[]>>(
       SERVER_URL + "/content/task?id=" + id,
       {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Autahorization: `Bearer ${token}` },
       }
     );
     TasksObs.next(data.payload);

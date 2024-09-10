@@ -19,7 +19,6 @@ export interface OutUser {
   password: string;
 }
 
-
 export interface InUser {
   name: string;
   username: string;
@@ -27,21 +26,43 @@ export interface InUser {
   isAdmin: boolean;
 }
 
-export interface Task {
+export interface InTask {
   _id: string;
   text: string;
   completed: boolean;
   userId: string;
+  category: string;
 }
 export interface DictionaryItem {
   _id: string;
   commonality: number;
   text: string;
 }
-
+export type Task = {
+  text: string;
+  category?: string;
+};
 export interface OutTask {
   text: string;
   userId: string;
+  category?: string;
+}
+
+export type Category = {
+  _id: string;
+  text: string;
+  createdBy: string;
+  added: Date | string;
+};
+
+export interface StandardCategory {
+  _id: string;
+  text: string;
+}
+
+export interface SingleActionType<T> {
+  state: T;
+  action: (e:T) => void;
 }
 
 export enum FormType {
@@ -52,4 +73,13 @@ export enum FormType {
 export enum AccountType {
   ADMIN = "Admin",
   USER = "User",
+}
+
+export interface CategorySelectionProps {
+  modalState: boolean;
+  onHandleModalState: (e: boolean) => void;
+}
+
+export interface CategorySelectProps<J> extends SingleActionType<J> {
+  
 }

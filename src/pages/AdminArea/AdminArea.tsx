@@ -1,13 +1,15 @@
 import React from "react";
+import moment from 'moment';
+
 import UserObs, {
   getUsersFromRemote,
   UsersObs,
   verifyAdmin,
 } from "../../store/User";
 import { useNavigate } from "react-router-dom";
-import { DictionaryItem, InUser, User } from "../../types";
+import { Category, DictionaryItem, InUser, User } from "../../types";
 import NavBar from "../../components/Navbar/Navbar";
-import { getDict, WordDictObs } from "../../store/Content";
+import { CategoriesObs, getCategories, getDict, WordDictObs } from "../../store/Content";
 
 const AdminArea = (): React.ReactElement => {
   const [user, setUser] = React.useState<User | null>(null);
@@ -15,6 +17,7 @@ const AdminArea = (): React.ReactElement => {
   const [dictionary, setDictionary] = React.useState<DictionaryItem[] | null>(
     null
   );
+  const [categories, setCategories] = React.useState<Category[] | null>(null);
 
   const [called, setCalled] = React.useState<boolean>(false);
   const navigate = useNavigate();
@@ -23,6 +26,7 @@ const AdminArea = (): React.ReactElement => {
     if (!isAdmin) navigate("/");
     await getUsersFromRemote();
     await getDict();
+    await getCategories();
   };
   React.useEffect(() => {
     if (!called) {
@@ -36,10 +40,14 @@ const AdminArea = (): React.ReactElement => {
     const dictOBS = WordDictObs.asObservable().subscribe((words) => {
       setDictionary(words);
     });
+    const categoryObs = CategoriesObs.asObservable().subscribe((categorys) => {
+      setCategories(categorys);
+    });
     return () => {
       isAdminSub.unsubscribe();
       usersOb.unsubscribe();
       dictOBS.unsubscribe();
+      categoryObs.unsubscribe();
     };
   }, [called]);
 
@@ -119,7 +127,50 @@ const AdminArea = (): React.ReactElement => {
                   );
                 })
             ) : (
-              <p>Dictionary is empty...</p>
+              <tr><td><p>Dictionary is empty...</p></td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      <div className="box">
+        <h1 className="is-size-2">Categories</h1>
+
+        <table className="table">
+          <thead>
+            <tr>
+              <th>
+                <abbr title="Position">#</abbr>
+              </th>
+              <th>
+                <abbr title="text">Text</abbr>
+              </th>
+              <th>
+                <abbr title="AddedBy">Added By</abbr>
+              </th>
+              <th>
+                <abbr title="dateCreated">Date Created</abbr>
+              </th>
+              <th>
+                <abbr title="actions">actions</abbr>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {categories && categories.length > 0 ? (
+              categories
+                .map((category, idx) => {
+                  return (
+                    <tr key={category._id}>
+                      <th>{idx}</th>
+                      <td>{category.text}</td>
+                      <td>{users?.find((user) => user.userId === category.createdBy)?.name}</td>
+                      <td>{category.added && moment(category.added).format('YYYY-MM-DD HH:mm:ss')}</td>
+                      <td>Action</td>
+                    </tr>
+                  );
+                })
+            ) : (
+              <tr><td><p>No known categories...</p></td></tr>
             )}
           </tbody>
         </table>
