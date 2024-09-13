@@ -24,6 +24,7 @@ import toast from "react-hot-toast";
 import { faPencilAlt } from "@fortawesome/free-solid-svg-icons";
 import UpdateUserModal from "../../components/UpdateUserModal/UpdateUserModal";
 import ConfirmModal from "../../components/ConfirmModal/ConfirmModal";
+import TaskList from "../../components/TaskList/TaskList";
 
 const AdminArea = (): React.ReactElement => {
   const [user, setUser] = React.useState<User | null>(null);
@@ -280,6 +281,10 @@ const handleDeleteUser = async () => {
           </tbody>
         </table>
       </div>
+        <div className="box">
+            <h1 className="title">All Tasks</h1>
+        <TaskList />
+        </div>
     </div>
   );
 };

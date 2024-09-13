@@ -102,6 +102,28 @@ export const getTasks = async (): Promise<number> => {
   }
 };
 
+export const getAllTasks = async (): Promise<number> => {
+  try {
+    const user = window.sessionStorage.getItem("notes_session");
+    if (!user) {
+      return 404;
+    }
+    const token = JSON.parse(user).token;
+    const { data } = await axios.get<CustomResponse<InTask[]>>(
+      SERVER_URL + "/content/tasks/all",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    TasksObs.next(data.payload);
+    return 200;
+  } catch (error) {
+    toast.error((error as AxiosError).message);
+    console.log('this is the status tasks ', (error as AxiosError));
+    return (error as AxiosError).status || 500;
+  }
+};
+
 export const addTask = async (incommingTask: Task): Promise<number> => {
   try {
     const user = window.sessionStorage.getItem("notes_session");

@@ -29,6 +29,7 @@ const NavBar: React.FC<NavBarProps> = ({ name }) => {
     const userObs = UserObs.asObservable().subscribe((usr) => {
       setUser(usr)
     });
+    console.log(USER);
     return () => {
       userObs.unsubscribe();
     }

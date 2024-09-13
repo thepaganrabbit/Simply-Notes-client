@@ -1,37 +1,59 @@
 import React from "react";
-import { InTask, Task } from "../../types";
+import { InTask, InUser, Task, User } from "../../types";
 import {
   completeTask,
   deleteTask,
+  getAllTasks,
   getTasks,
   TasksObs,
 } from "../../store/Content";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan } from "@fortawesome/free-regular-svg-icons";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import UserObs, { getUserLocal, UsersObs } from "../../store/User";
 
 const TaskList = (): React.ReactElement => {
   const [tasks, setTasks] = React.useState<InTask[] | null>(null);
+
+  const location = useLocation();
+  const [user, setUser] = React.useState<User | null>(null)
+  const [users, setUsers] = React.useState<InUser[] | null>(null)
+
   const nav = useNavigate();
   const fetchTasks = async () => {
     const success = await getTasks();
-    console.log(success);
     if(success === 403) {
       toast.error('You have been logged out');
       nav('/entrance/login');
     }
   };
+
+  const fetchAllTasks = async () => {
+    const success = await getAllTasks();
+    if(success > 220) {
+      toast.error('An error occurred when fetching all tasks.');
+    }
+  }
   const handleCompleteTask = async (id: string) => {
     await completeTask(id);
   };
   React.useEffect(() => {
-    if (tasks === null) {
+    if (user?.isAdmin && location.pathname.match(/(admin)/gm)) {
+      fetchAllTasks();
+    } else if(!tasks){
       fetchTasks();
     }
+    
     const sub = TasksObs.asObservable().subscribe((tasks) => setTasks(tasks));
-    return () => sub.unsubscribe();
-  }, [tasks, fetchTasks]);
+    const userSub = UserObs.asObservable().subscribe((usr) => setUser(usr));
+    return () => {
+      sub.unsubscribe();
+      userSub.unsubscribe();
+    }
+  }, [ user, tasks]);
+
+  if(!user) return <button className="button is-loading"></button>
 
   return (
     <div className="box">
@@ -41,7 +63,7 @@ const TaskList = (): React.ReactElement => {
             <li key={task._id}>
               <div
                 className="columns"
-                onDoubleClick={() => handleCompleteTask(task._id)}
+                onDoubleClick={() => !location.pathname.match(/(admin)/gm) && handleCompleteTask(task._id)}
               >
                 <div
                   className="column"
@@ -59,7 +81,8 @@ const TaskList = (): React.ReactElement => {
                 >
                   {task.category}
                 </div>
-                <div className="column">
+                {!location.pathname.match(/(admin)/gm) && (
+                  <div className="column">
                   <input
                     type="checkbox"
                     checked={task.completed}
@@ -74,6 +97,12 @@ const TaskList = (): React.ReactElement => {
                     onClick={async () => deleteTask(task._id)}
                   />
                 </div>
+                )}
+                {user.isAdmin && (
+                  <div className="column">
+                  <p className="is-size-4 is-uppercase">{getUserLocal(task.userId)}</p>
+                </div>
+                )}
               </div>
             </li>
           ))

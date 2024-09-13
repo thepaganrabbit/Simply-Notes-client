@@ -86,6 +86,14 @@ export const verifyToken = async (token: string) => {
   }
 };
 
+export const getUserLocal = (id: string) => {
+  let users_name = '';
+  UsersObs.asObservable().subscribe(usrs => {
+    users_name = usrs.filter((usr) => usr.userId === id)[0].name;
+  }).unsubscribe();
+  return users_name;
+}
+
 export const getUsersFromRemote = async () => {
   try {
     let token = checkToken();
