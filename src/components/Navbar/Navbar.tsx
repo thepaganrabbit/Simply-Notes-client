@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import "./Navbar.scss";
-import { loginUserOut } from "../../store/User";
+import UserObs, { loginUserOut } from "../../store/User";
+import { User } from "../../types";
 
 interface NavBarProps {
   name?: string;
@@ -12,7 +13,7 @@ interface NavBarProps {
 const NavBar: React.FC<NavBarProps> = ({ name }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+  const [USER , setUser] = React.useState<User | null>(null)
   const handleLogOut = () => {
     const hasLoggedOff = loginUserOut();
     if (hasLoggedOff) {
@@ -23,9 +24,22 @@ const NavBar: React.FC<NavBarProps> = ({ name }) => {
       navigate("/entrance/login");
     }
   };
+
+  React.useEffect(()=> {
+    const userObs = UserObs.asObservable().subscribe((usr) => {
+      setUser(usr)
+    });
+    return () => {
+      userObs.unsubscribe();
+    }
+  },[USER])
+  
+  if(!USER) {
+    return <button className="button is-loading"></button>
+  }
   return (
     <nav
-      className="navbar"
+      className="navbar "
       role="navigation"
       aria-label="main navigation"
       style={{ marginBottom: 54 }}
@@ -59,7 +73,7 @@ const NavBar: React.FC<NavBarProps> = ({ name }) => {
               <a className="button is-danger adj-left" onClick={handleLogOut}>
                 Log out
               </a>
-              {!location.pathname.match(/(admin)/gm) ? (
+              {!location.pathname.match(/(admin)/gm) && USER.isAdmin? (
                 <a
                   className="button is-success adj-left"
                   onClick={() => {

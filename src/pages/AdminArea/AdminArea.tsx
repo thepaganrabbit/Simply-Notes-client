@@ -1,7 +1,8 @@
 import React from "react";
-import moment from 'moment';
+import moment from "moment";
 
 import UserObs, {
+  deleteUser,
   getUsersFromRemote,
   UsersObs,
   verifyAdmin,
@@ -9,20 +10,39 @@ import UserObs, {
 import { useNavigate } from "react-router-dom";
 import { Category, DictionaryItem, InUser, User } from "../../types";
 import NavBar from "../../components/Navbar/Navbar";
-import { CategoriesObs, deleteCategory, getCategories, getDict, WordDictObs } from "../../store/Content";
+import {
+  CategoriesObs,
+  deleteCategory,
+  deleteWord,
+  getCategories,
+  getDict,
+  WordDictObs,
+} from "../../store/Content";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import toast from "react-hot-toast";
+import { faPencilAlt } from "@fortawesome/free-solid-svg-icons";
+import UpdateUserModal from "../../components/UpdateUserModal/UpdateUserModal";
+import ConfirmModal from "../../components/ConfirmModal/ConfirmModal";
 
 const AdminArea = (): React.ReactElement => {
   const [user, setUser] = React.useState<User | null>(null);
   const [users, setUsers] = React.useState<InUser[] | null>(null);
+  const [userId, setUsersId] = React.useState<string>("");
+
   const [dictionary, setDictionary] = React.useState<DictionaryItem[] | null>(
     null
   );
   const [categories, setCategories] = React.useState<Category[] | null>(null);
 
   const [called, setCalled] = React.useState<boolean>(false);
+  const [editMode, setEditMode] = React.useState<boolean>(false);
+  const [youSure, setIfSure] = React.useState<boolean>(false);
+const handleDeleteUser = async () => {
+  const removeCategory = await deleteUser(userId);
+  if (removeCategory > 240)
+    toast.error("Failed to remove User");
+}
   const navigate = useNavigate();
   const fetchUsers = async () => {
     const isAdmin = await verifyAdmin();
@@ -59,6 +79,7 @@ const AdminArea = (): React.ReactElement => {
       <NavBar name={user?.name} />
       <div className="box">
         <h1 className="is-size-2">Users</h1>
+        <UpdateUserModal id={userId} state={editMode} action={setEditMode} />
         <table className="table">
           <thead>
             <tr>
@@ -88,7 +109,40 @@ const AdminArea = (): React.ReactElement => {
                     <td>{usr.name}</td>
                     <td>{usr.username}</td>
                     <td>{usr.isAdmin ? "Admin" : "User"}</td>
-                    <td>Action</td>
+                    <td>
+                      <ConfirmModal
+                        modalState={youSure}
+                        close={setIfSure}
+                        action={handleDeleteUser}
+                      />
+
+                      <button
+                        className="button is-ghost"
+                        onClick={async () => {
+                          setUsersId(usr.userId);
+                          setIfSure(true);
+                        }}
+                      >
+                        <FontAwesomeIcon
+                          icon={faTrashAlt}
+                          size="1x"
+                          color="red"
+                        />
+                      </button>
+                      <button
+                        className="button is-ghost"
+                        onClick={() => {
+                          setUsersId(usr.userId);
+                          setEditMode(true);
+                        }}
+                      >
+                        <FontAwesomeIcon
+                          icon={faPencilAlt}
+                          size="1x"
+                          color="orange"
+                        />
+                      </button>
+                    </td>
                   </tr>
                 );
               })}
@@ -125,12 +179,31 @@ const AdminArea = (): React.ReactElement => {
                       <th>{idx}</th>
                       <td>{word.text}</td>
                       <td>{word.commonality}</td>
-                      <td>Action</td>
+                      <td>
+                        <button
+                          className="button is-ghost"
+                          onClick={async () => {
+                            const removeWord = await deleteWord(word._id);
+                            if (removeWord > 240)
+                              toast.error("Failed to delete phrase.");
+                          }}
+                        >
+                          <FontAwesomeIcon
+                            icon={faTrashAlt}
+                            size="1x"
+                            color="red"
+                          />
+                        </button>
+                      </td>
                     </tr>
                   );
                 })
             ) : (
-              <tr><td><p>Dictionary is empty...</p></td></tr>
+              <tr>
+                <td>
+                  <p>Dictionary is empty...</p>
+                </td>
+              </tr>
             )}
           </tbody>
         </table>
@@ -160,27 +233,49 @@ const AdminArea = (): React.ReactElement => {
           </thead>
           <tbody>
             {categories && categories.length > 0 ? (
-              categories
-                .map((category, idx) => {
-                  return (
-                    <tr key={category._id}>
-                      <th>{idx}</th>
-                      <td>{category.text}</td>
-                      <td>{users?.find((user) => user.userId === category.createdBy)?.name}</td>
-                      <td>{category.added && moment(category.added).format('YYYY-MM-DD HH:mm:ss')}</td>
-                      <td>
-                        <button className="button is-ghost" onClick={async () => {
-                            const removeCategory = await deleteCategory(category._id);
-                            if(removeCategory > 240) toast.error('Failed to delete category.');
-                        }}>
-                          <FontAwesomeIcon icon={faTrashAlt} size="1x" color="red" />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
+              categories.map((category, idx) => {
+                return (
+                  <tr key={category._id}>
+                    <th>{idx}</th>
+                    <td>{category.text}</td>
+                    <td>
+                      {
+                        users?.find(
+                          (user) => user.userId === category.createdBy
+                        )?.name
+                      }
+                    </td>
+                    <td>
+                      {category.added &&
+                        moment(category.added).format("YYYY-MM-DD HH:mm:ss")}
+                    </td>
+                    <td>
+                      <button
+                        className="button is-ghost"
+                        onClick={async () => {
+                          const removeCategory = await deleteCategory(
+                            category._id
+                          );
+                          if (removeCategory > 240)
+                            toast.error("Failed to delete category.");
+                        }}
+                      >
+                        <FontAwesomeIcon
+                          icon={faTrashAlt}
+                          size="1x"
+                          color="red"
+                        />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
             ) : (
-              <tr><td><p>No known categories...</p></td></tr>
+              <tr>
+                <td>
+                  <p>No known categories...</p>
+                </td>
+              </tr>
             )}
           </tbody>
         </table>

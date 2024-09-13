@@ -2,6 +2,7 @@ import { BehaviorSubject } from "rxjs";
 import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";                    
 import { Category, CustomResponse, DictionaryItem, InTask, Task, User } from "../types";
+import { getUsersFromRemote } from "./User";
 
 const SERVER_URL = "http://www.local-server.com:3000";
 
@@ -152,6 +153,7 @@ export const completeTask = async (id: string): Promise<number> => {
   }
 };
 
+
 export const deleteTask = async (id: string): Promise<number> => {
   try {
     const user = window.sessionStorage.getItem("notes_session");
@@ -202,3 +204,33 @@ export const deleteCategory = async (id: string): Promise<number> => {
     return (error as AxiosError).response!.status || 500;
   }
 };
+
+
+export const deleteWord = async (id: string): Promise<number> => {
+  try {
+    const user = window.sessionStorage.getItem("notes_session");
+    if (!user) {
+      return 404;
+    }
+    const userObj = JSON.parse(user) as User;
+    const {token } = userObj;
+    const { data } = await axios.delete<CustomResponse<number>>(
+      SERVER_URL + "/content/dictionary?id=" + id,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    if(data.payload !== 204) {{
+      throw new AxiosError('Failed to remove the selected category...', '500');
+    }}
+    const get_dicts = await getDict();
+    if(get_dicts > 240) {
+      throw new AxiosError('Failed to get all catagories whilst removing a category...', '500');
+    }
+    return 200;
+  } catch (error) {
+    toast.error((error as AxiosError).message);
+    return (error as AxiosError).response!.status || 500;
+  }
+};
+

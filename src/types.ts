@@ -1,6 +1,7 @@
 export interface User {
   userId: string;
   username: string;
+  isAdmin: boolean;
   name: string;
   token: string;
 }
@@ -17,6 +18,14 @@ export interface OutUser {
   name?: string;
   username: string;
   password: string;
+}
+
+export interface UpdatedUser {
+  name: string;
+  username: string;
+  isAdmin: boolean;
+  userId: string;
+  password?: string | undefined;
 }
 
 export interface InUser {
@@ -65,6 +74,13 @@ export interface SingleActionType<T> {
   action: (e:T) => void;
 }
 
+
+export interface ModalActionType<T> {
+  modalState: T;
+  close: (e:T) => void;
+}
+
+
 export enum FormType {
   LOGIN = "login",
   SIGNUP = "signup",
@@ -82,4 +98,12 @@ export interface CategorySelectionProps {
 
 export interface CategorySelectProps<J> extends SingleActionType<J> {
   
+}
+
+export interface UpdatedUserModalProps extends SingleActionType<boolean> {
+  id: string;
+}
+
+export interface ConfirmModalProps extends ModalActionType<boolean> {
+  action: () => {};
 }
